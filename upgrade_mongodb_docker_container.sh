@@ -28,27 +28,33 @@ volumes:
   atlas_search_data:
 EOL
 
-echo "-*-* Starting mongodb docker container upgrade *-*-"
-echo "Create backup inside docker container"
-docker exec $CONTAINER_NAME mongodump --uri="mongodb://localhost:27017/?directConnection=true" --out=/tmp/backup
-
-echo "Create a local copy of database from docker container"
-docker cp $CONTAINER_NAME:/tmp/backup $TEMPORARY_BACKUP_DIRECTORY_NAME/
-
-read -p "Check local folder now, and be sure the local copy of the backup is present! Starting to upgrade (and delete docker container)? (y/N): " confirm
+read -p "Create a new container (y) or upgrade the existing one (N)? (y/N): " confirm
 if [[ "$confirm" =~ ^[Yy]$ ]]; then
-    echo "Stop docker container"
+    echo "Creating new docker container"
 else
-    echo "User stopped database backup. EXIT!!"
-    exit 0
+    echo "-*-* Starting mongodb docker container upgrade *-*-"
+    echo "Create backup inside docker container"
+    docker exec $CONTAINER_NAME mongodump --uri="mongodb://localhost:27017/?directConnection=true" --out=/tmp/backup
+
+    echo "Create a local copy of database from docker container"
+    docker cp $CONTAINER_NAME:/tmp/backup $TEMPORARY_BACKUP_DIRECTORY_NAME/
+
+    read -p "Check local folder now, and be sure the local copy of the backup is present! Starting to upgrade (and delete docker container)? (y/N): " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo "Stop docker container"
+    else
+        echo "User stopped database backup. EXIT!!"
+        exit 0
+    fi
+
+    docker stop "$CONTAINER_NAME"
+
+    echo "Remove old container"
+    docker rm -f $CONTAINER_NAME
+
+    echo "Recreate docker container with upgraded version"
 fi
 
-docker stop "$CONTAINER_NAME"
-
-echo "Remove old container"
-docker rm -f $CONTAINER_NAME
-
-echo "Recreate docker container with upgraded version"
 docker compose -f $TEMPORARY_BACKUP_DIRECTORY_NAME/docker-compose.yml up -d --force-recreate
 
 echo "Copy local backup directory inside new created docker container"
