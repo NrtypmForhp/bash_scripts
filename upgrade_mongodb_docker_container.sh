@@ -17,6 +17,8 @@ services:
     restart: always
     ports:
       - "27017:27017"
+    networks:
+      - docker_default
     volumes:
       - atlas_data:/data/db
       - atlas_config:/data/configdb
@@ -26,6 +28,11 @@ volumes:
   atlas_data:
   atlas_config:
   atlas_search_data:
+
+networks:
+  docker_default:
+    external: true
+    name: docker_default
 EOL
 
 read -p "Create a new container (y) or upgrade and backup the existing one (N)? (y/N): " confirm
@@ -62,6 +69,8 @@ docker cp $TEMPORARY_BACKUP_DIRECTORY_NAME/backup $CONTAINER_NAME:/tmp/backup
 
 echo "Restore the backup"
 docker exec $CONTAINER_NAME mongorestore --drop --uri="mongodb://localhost:27017/?directConnection=true" /tmp/backup
+
+echo "Connect docker to default network"
 
 echo "Backup restored"
 read -p "Check your database now. Delete backup files? (y/N): " confirm
