@@ -46,7 +46,7 @@ else
     echo "Create a local copy of database from docker container"
     docker cp $CONTAINER_NAME:/tmp/backup $TEMPORARY_BACKUP_DIRECTORY_NAME/
 
-    read -p "Check local folder now, and be sure the local copy of the backup is present! Starting to upgrade (and delete docker container)? (y/N): " confirm
+    read -p "Check local folder now, and make sure the local copy of the backup is present! Starting to upgrade (and delete docker container)? (y/N): " confirm
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
         echo "Stop docker container"
     else
