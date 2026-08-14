@@ -57,20 +57,24 @@ else
     docker stop "$CONTAINER_NAME"
 
     echo "Remove old container"
-    docker rm -f $CONTAINER_NAME
+    docker compose -f "$TEMPORARY_BACKUP_DIRECTORY_NAME/docker-compose.yml" down -v --rmi all
 
     echo "Recreate docker container with upgraded version"
 fi
 
 docker compose -f $TEMPORARY_BACKUP_DIRECTORY_NAME/docker-compose.yml up -d --force-recreate
 
+echo "Waiting for MongoDB to become PRIMARY and ready for writes..."
+until docker exec mongodb_docker_container mongosh --quiet --eval "db.hello().isWritablePrimary" 2>/dev/null | grep -q "true"; do
+    echo "MongoDB is still initializing, waiting..."
+    sleep 2
+done
+
 echo "Copy local backup directory inside new created docker container"
 docker cp $TEMPORARY_BACKUP_DIRECTORY_NAME/backup $CONTAINER_NAME:/tmp/backup
 
 echo "Restore the backup"
 docker exec $CONTAINER_NAME mongorestore --drop --uri="mongodb://localhost:27017/?directConnection=true" /tmp/backup
-
-echo "Connect docker to default network"
 
 echo "Backup restored"
 read -p "Check your database now. Delete backup files? (y/N): " confirm
