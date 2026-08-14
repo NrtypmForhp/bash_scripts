@@ -28,7 +28,7 @@ volumes:
   atlas_search_data:
 EOL
 
-read -p "Create a new container (y) or upgrade the existing one (N)? (y/N): " confirm
+read -p "Create a new container (y) or upgrade and backup the existing one (N)? (y/N): " confirm
 if [[ "$confirm" =~ ^[Yy]$ ]]; then
     echo "Creating new docker container"
 else
