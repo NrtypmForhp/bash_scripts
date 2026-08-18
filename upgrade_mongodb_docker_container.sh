@@ -78,11 +78,15 @@ until docker exec mongodb_docker_container mongosh --quiet --eval "db.hello().is
     sleep 2
 done
 
-echo "Copy local backup directory inside new created docker container"
-docker cp $TEMPORARY_BACKUP_DIRECTORY_NAME/backup $CONTAINER_NAME:/tmp/backup
+if [ -d "$TEMPORARY_BACKUP_DIRECTORY_NAME/backup" ]; then
+  echo "Copy local backup directory inside new created docker container"
+  docker cp $TEMPORARY_BACKUP_DIRECTORY_NAME/backup $CONTAINER_NAME:/tmp/backup
 
-echo "Restore the backup"
-docker exec $CONTAINER_NAME mongorestore --drop --uri="mongodb://localhost:27017/?directConnection=true" /tmp/backup
+  echo "Restore the backup"
+  docker exec $CONTAINER_NAME mongorestore --drop --uri="mongodb://localhost:27017/?directConnection=true" /tmp/backup
+else
+  echo "Backup folder not found! Skipped."
+fi
 
 echo "Backup restored"
 read -p "Check your database now. Delete backup files? (y/N): " confirm
