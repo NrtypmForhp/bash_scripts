@@ -4,6 +4,7 @@ set -e # Exit immediately if a command exits with a non-zero status
 SERVICE_NAME="mongodb"
 CONTAINER_NAME="mongodb_docker_container"
 TEMPORARY_BACKUP_DIRECTORY_NAME="temp_mongodb_backup"
+NETWORK_NAME="docker_default"
 
 mkdir -p $TEMPORARY_BACKUP_DIRECTORY_NAME # Temporary directory to store backup and docker yml file
 
@@ -60,6 +61,13 @@ else
     docker compose -f "$TEMPORARY_BACKUP_DIRECTORY_NAME/docker-compose.yml" down -v --rmi all
 
     echo "Recreate docker container with upgraded version"
+fi
+
+if docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
+  echo "Network '$NETWORK_NAME' already exists. Skipping creation."
+else
+  echo "Creating network '$NETWORK_NAME'..."
+  docker network create "$NETWORK_NAME"
 fi
 
 docker compose -f $TEMPORARY_BACKUP_DIRECTORY_NAME/docker-compose.yml up -d --force-recreate

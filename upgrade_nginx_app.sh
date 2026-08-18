@@ -3,6 +3,7 @@
 set -e # Exit immediately if a command exits with a non-zero status
 FLASK_CONTAINER_NAME="tsync_flask"
 NGINX_PROXY_CONTAINER_NAME="nginx_proxy"
+NETWORK_NAME="docker_default"
 
 read -p "Make sure you are placed (with cd commands) in the main directory with all the python, HTML, JS files!! Are you in the correct directory? (y/N): " confirm
 if [[ "$confirm" =~ ^[Yy]$ ]]; then
@@ -158,6 +159,13 @@ else
     docker compose down -v --rmi all
 
     echo "Recreate docker container with upgraded version"
+fi
+
+if docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
+  echo "Network '$NETWORK_NAME' already exists. Skipping creation."
+else
+  echo "Creating network '$NETWORK_NAME'..."
+  docker network create "$NETWORK_NAME"
 fi
 
 docker compose up -d --force-recreate
