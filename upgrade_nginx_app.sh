@@ -19,7 +19,7 @@ rm -f -- Dockerfile
 rm -f -- nginx.conf
 rm -f -- requirements.txt
 
-echo "Create docker compose yml file"
+echo "-*-* Create docker compose yml file *-*-"
 cat >docker-compose.yml <<EOL
 services:
   tsync_app:
@@ -101,49 +101,53 @@ EOL
 
 echo "Create python requirements.txt file"
 cat >requirements.txt <<EOL
-anyio>=4.12.1
-APScheduler>=3.11.2
-asgiref>=3.11.0
+anyio>=4.14.2
+APScheduler>=3.11.3
+asgiref>=3.12.1
 blinker>=1.9.0
-cachelib>=0.13.0
-certifi>=2026.1.4
-charset-normalizer>=3.4.4
-click>=8.3.1
+boto3>=1.43.74
+botocore>=1.43.74
+cachelib>=0.15.4
+certifi>=2026.7.22
+charset-normalizer>=3.5.1
+click>=8.4.2
 Deprecated>=1.3.1
 dnspython>=2.8.0
-Flask>=3.1.2
+Flask>=3.1.3
 Flask-APScheduler>=1.13.1
 Flask-Limiter>=4.1.1
 Flask-Session>=0.8.0
-Flask-WTF>=1.2.2
+Flask-WTF>=1.3.0
 googletrans>=4.0.2
 h11>=0.16.0
-h2>=4.3.0
-hpack>=4.1.0
+h2>=4.4.1
+hpack>=4.2.0
 httpcore>=1.0.9
 httpx>=0.28.1
 hyperframe>=6.1.0
-idna>=3.11
+idna>=3.19
 itsdangerous>=2.2.0
 Jinja2>=3.1.6
-limits>=5.6.0
+jmespath>=1.1.0
+limits>=5.8.0
 MarkupSafe>=3.0.3
-msgspec>=0.20.0
+msgspec>=0.21.1
 ordered-set>=4.1.0
-packaging>=26.0
-pillow>=12.1.0
-pymongo>=4.16.0
+packaging>=26.3
+pillow>=12.3.0
+pymongo>=4.17.0
 python-dateutil>=2.9.0.post0
-pytz>=2025.2
-requests>=2.32.5
+pytz>=2026.3.post1
+requests>=2.34.2
+s3transfer>=0.19.2
 six>=1.17.0
 sniffio>=1.3.1
-typing_extensions>=4.15.0
-tzlocal>=5.3.1
-urllib3>=2.6.3
-Werkzeug>=3.1.5
-wrapt>=2.0.1
-WTForms>=3.2.1
+typing_extensions>=4.16.0
+tzlocal>=5.4.4
+urllib3>=2.7.0
+Werkzeug>=3.1.8
+wrapt>=2.3.0
+WTForms>=3.2.2
 gunicorn
 EOL
 
