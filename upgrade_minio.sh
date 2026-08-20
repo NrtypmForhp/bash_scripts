@@ -2,6 +2,8 @@
 
 set -e # Exit immediately if a command exits with a non-zero status
 NETWORK_NAME="docker_default"
+MINIO_CONTAINER_NAME="minio_docker_container"
+MINIO_CREATEBUCKETS_CONTAINER_NAME="minio_createbuckets_container"
 
 echo "-*-* Create docker compose yml file *-*-"
 cat >docker-compose.yml <<EOL
@@ -24,6 +26,7 @@ services:
     
   createbuckets:
     image: minio/mc:latest
+    container_name: minio_createbuckets_container
     depends_on:
       - minio
     networks:
@@ -48,6 +51,8 @@ networks:
     name: docker_default
 EOL
 
+read -p "Do you want to delete all files and volumes? (y/N): " DELETE_ALL
+
 if docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
   echo "Network '$NETWORK_NAME' already exists. Skipping creation."
 else
@@ -55,9 +60,27 @@ else
   docker network create "$NETWORK_NAME"
 fi
 
-echo "Creating new docker container"
+echo "Stop the container..."
+docker compose -f docker-compose.yml stop || true
 
-docker compose -f docker-compose.yml up -d --force-recreate
+echo "Pulling latest images..."
+docker compose -f docker-compose.yml pull 
 
-echo "Delete docker compose file"
+if [ "$DELETE_ALL" = "y" ] || [ "$DELETE_ALL" = "Y" ]; then
+    echo "Deleting all files and volumes..."
+    docker compose -f docker-compose.yml down -v
+else
+    echo "Recreating containers with updated images..."
+    docker compose -f docker-compose.yml down
+fi
+
+echo "Starting containers..."
+docker compose -f docker-compose.yml up -d
+
+sleep 3
+
+echo "Delete bucket container..."
+docker rm -f "$MINIO_CREATEBUCKETS_CONTAINER_NAME" >/dev/null 2>&1 || true
+
+echo "Delete docker compose file..."
 rm docker-compose.yml
