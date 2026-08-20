@@ -15,7 +15,7 @@ services:
       MINIO_ROOT_PASSWORD: "test_password_123"
     restart: always
     ports:
-      - "9000:9000"   # API S3 (otional for Nginx proxy)
+      - "9000:9000"   # API S3
       - "9001:9001"   # Dashboard Web MinIO
     networks:
       - docker_default
@@ -30,10 +30,13 @@ services:
       - docker_default
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set myminio http://minio:9000 minio_user test_password_123;
+      until /usr/bin/mc alias set myminio http://minio:9000 minio_user test_password_123; do
+        echo 'Waiting for MinIO...'
+        sleep 2
+      done;
       /usr/bin/mc mb myminio/pictures --ignore-existing;
       /usr/bin/mc anonymous set download myminio/pictures;
-      exit 0;
+      echo 'Policy applied with success!';
       "
 
 volumes:
