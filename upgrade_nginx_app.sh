@@ -28,6 +28,7 @@ services:
     restart: always
     environment:
       - MONGO_URI=mongodb://mongodb_docker_container:27017/
+      - S3_ENDPOINT_URL=http://minio_docker_container:9000
     volumes:
       - ./bot_cache:/app/bot_cache
       - ./sessions:/app/sessions
